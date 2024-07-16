@@ -1,6 +1,7 @@
-const { Account } = require('../models');
+const { Account, Token } = require('../models');
+const sendEmail = require('../lib/email');
 const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken'); 
+const jwt = require('jsonwebtoken');
 
 const createAccount = async (req, res) => {
     try {
@@ -10,6 +11,14 @@ const createAccount = async (req, res) => {
         const ifExist = await Account.findOne({ where: { email } });
         if (ifExist) {
             return res.status(409).json({ error: 'Email already exists' });
+        }
+
+        const userDetails = {
+            first_name,
+            last_name,
+            email,
+            phone,
+            birthday,
         }
 
         await Account.create({
@@ -22,6 +31,7 @@ const createAccount = async (req, res) => {
             created_at: new Date(),
             last_modified: new Date()
         });
+        await sendEmail(email, 'Account Created', userDetails);
         res.status(201).json({ message: 'Your account has been created successfully'});
     } catch (error) {
         res.status(400).json({ error: error.message });
@@ -40,6 +50,15 @@ const login = async (req, res) => {
             return res.status(401).json({ error: 'Invalid credentials' });
         }
         const token = jwt.sign({ id: account.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        const checkToken = await Token.findOne({ where: { id: account.id } });
+        if (checkToken) {
+            await Token.update({ token }, { where: { id: account.id } });
+        } else {
+            await Token.create({
+                id: account.id,
+                token,
+            });
+        }
         res.status(201).json({ message: 'Login successfully'});
     } catch (error) {
         res.status(400).json({ error: error.message });
@@ -101,6 +120,7 @@ const updateAccount = async (req, res) => {
 const deleteAccount = async (req, res) => {
     try {
         const { id } = req.params;
+        await Token.destroy({ where: { id } });
         await Account.destroy({ where: { id } });
         res.status(201).json({ message: 'Your account has been deleted successfully'});
     } catch (error) {

@@ -1,5 +1,6 @@
 const sequelize = require('../config/database');
 const Account = require('./account');
+const Token = require('./token');
 
 const initDB = async () => {
     try {
@@ -10,4 +11,4 @@ const initDB = async () => {
     }
 };
 
-module.exports = { initDB, Account };
+module.exports = { initDB, Account, Token };
