@@ -12,5 +12,5 @@ logs/
 package-lock.json
 info.log
 error.log
-.env
+# .env
 BAK_*
