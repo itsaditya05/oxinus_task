@@ -70,7 +70,7 @@ module.exports = (app, res, next) => {
         const userinfo = user.get();
         return done(null, getUserInfoForRequest(userinfo));
       } catch (err) {
-        console.log('Error:', err);
+        console.error('Error:', err);
         res.status(400).json({ error: err.message });
       }
     },

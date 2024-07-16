@@ -1,5 +1,4 @@
-const { Sequelize } = require('sequelize'); 
-console.log(process.env.DB_NAME , 'process.env.DB_NAME');
+const { Sequelize } = require('sequelize');
 
 const sequelize = new Sequelize(
     process.env.DB_NAME,
